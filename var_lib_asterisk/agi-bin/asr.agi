@@ -1,0 +1,129 @@
+#!/usr/bin/perl
+use Asterisk::AGI;
+use DBI;
+# Config options
+%MYSQL = (
+hostname	=>	"localhost", 
+username	=>	"root",
+password	=>	"",
+database	=>	"yahoo"
+);
+
+$dbhA = DBI->connect("DBI:mysql:$MYSQL{database}:$MYSQL{hostname}","$MYSQL{username}","$MYSQL{password}")
+	|| die("Couldn't connect to database!\n"); 
+
+$AGI = new Asterisk::AGI;
+my %input = $AGI->ReadParse();
+my $pin 	= 0;
+my $target	= 0;
+my $try	= 0;
+
+##################################################################################
+#DATE FORMAT DEFINE
+($sec,$min,$hour,$mday,$mon,$year,$wday,$yday,$isdst) = localtime(time);
+$year = ($year + 1900);
+$mon++;
+if ($mon < 10) {$mon = "0$mon";}
+if ($mday < 10) {$mday = "0$mday";}
+if ($hour < 10) {$Fhour = "0$hour";}
+if ($min < 10) {$min = "0$min";}
+if ($sec < 10) {$sec = "0$sec";}
+$datetime = "$year-$mon-$mday $hour:$min:$sec";
+$datetime2 ="$year-$mon-$mday";
+$datetime3 = "$hour:$min:$sec";
+$now_epoch = time();
+################################################################################## 
+#DETECT THE CALLERID
+
+#$extension2=$AGI->get_variable("number1");
+my $uid=$AGI->get_variable("UNIQUEID");
+my $extension=$AGI->get_variable("EXTEN");
+my $cid=$AGI->get_variable("CALLERID(num)");
+my $duration=1;
+my $filter=1;
+my $percent=0;
+my $total=0;
+###################################################################################
+
+###################################################################################
+#Get Current Prefix
+my $prefix=$AGI->get_variable("jimmy");
+
+$AGI->say_digits($prefix);
+
+#################### Get Routing Details ################
+my $query	= "select * from routing where id='$prefix' limit 1;";
+my $sth		= $dbhA->prepare($query);
+   $sth->execute 
+               || die("Couldn't exec sth2!");  
+   my @results1 = $sth->fetchrow();
+   my $routename=$results1[1];
+   my $audioname=$results1[2];
+   my $calltype=$results1[3];
+   my $reqasr=$results1[4];
+   my $reqacd=$results1[5];
+
+$sth->finish();
+#$AGI->say_digits($reqasr);
+
+#################### Create and update dailycdr row if not exist ####################
+my $query        = "select total,answer from dailystats where prefix='$prefix' and reqasr='$reqasr' and date='$datetime2' limit 1;";
+my $sth		= $dbhA->prepare($query);
+   $sth->execute 
+		 || die("Couldn't exec sth2!");
+   my @results2 = $sth->fetchrow();
+      $total=$results2[0];
+   my $answered=$results2[1];
+   
+
+if($total > 0){
+   $AGI->say_digits('1010');
+   my $percent = ($answered/$total);
+      $percent = $percent*100;
+ 
+   #$AGI->say_digits('$percent'); 
+   if($reqasr > $percent){
+               #$AGI->say_digits('2020');               
+               my $query	= "UPDATE dailystats set total=total+1,answer=answer+1 where prefix='$prefix' and reqasr='$reqasr' and date='$datetime2';";
+               my $sthA		= $dbhA->prepare($query);
+               $sthA->execute || die("Couldn't exec sthA!");
+               $sthA->finish();
+               processcall()
+
+      }else{
+               #$AGI->say_digits('3030');
+               my $query	= "UPDATE dailystats set total=total+1,noanswer=noanswer+1 where prefix='$prefix' and reqasr='$reqasr' and date='$datetime2';";
+               my $sthA		= $dbhA->prepare($query);
+               $sthA->execute || die("Couldn't exec sthA!");
+               $sthA->finish();
+               forwardcall()
+      }
+
+}else{
+      #$AGI->say_digits('1980');
+      my $query	= "insert into dailystats values('$prefix','$datetime2','1','1','0','$reqasr','$reqacd');";
+      my $sthA		= $dbhA->prepare($query);
+         $sthA->execute || die("Couldn't exec sthA!");
+      $sthA->finish();
+} 
+sub processcall(){
+    if (($calltype == "Silence")||($calltype == "Ring-Only"){
+       $AGI->exec('Playback','$audioname');
+    }
+    if ($calltype == "Answer-And-Ring"){
+        $AGI->answer();
+        $AGI->set_priority(6);
+    }
+    if ($calltype == "Ring-Only"){
+        $AGI->set_priority(8);
+    }else{
+        forwardcall();
+    }
+}
+
+sub forwardcall(){
+    $AGI->set_priority(6);
+}
+###################################################################################
+return 1;
+

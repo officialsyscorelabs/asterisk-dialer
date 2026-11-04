@@ -1,0 +1,116 @@
+select count(*),sum(duration),dialstatus from cdrtable where datetime1 > DATE_SUB(NOW(), INTERVAL 1 HOUR) and user='22011' group by dialstatus;
++----------+---------------+------------+
+| count(*) | sum(duration) | dialstatus |
++----------+---------------+------------+
+|        7 |          4872 | ANSWER     |
+|        2 |             0 | CANCEL     |
++----------+---------------+------------+
+
+
+          <h4>User : 11001</h4>
+
+          <div class="table-responsive">
+            <table class="table table-striped table-sm">
+              <thead>
+                <tr>
+                  <th>#</th>
+                  <th>Params</th>
+                  <th>Value</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td>1</td>
+                  <td>Total Calls Last Hour</td>
+                  <td>200</td>
+                </tr>
+                <tr>
+                  <td>2</td>
+                  <td>Total Answered</td>
+                  <td>100</td>
+                </tr>
+                <tr>
+                  <td>3</td>
+                  <td>Total Duration (secs)</td>
+                  <td>8000</td>
+                </tr>
+                <tr>
+                  <td>4</td>
+                  <td>Generated ACD (secs)</td>
+                  <td>80</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+
+          <h4>User : 11002</h4>
+
+          <div class="table-responsive">
+            <table class="table table-striped table-sm">
+              <thead>
+                <tr>
+                  <th>#</th>
+                  <th>Params</th>
+                  <th>Value</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td>1</td>
+                  <td>Total Calls Last Hour</td>
+                  <td>200</td>
+                </tr>
+                <tr>
+                  <td>2</td>
+                  <td>Total Answered</td>
+                  <td>100</td>
+                </tr>
+                <tr>
+                  <td>3</td>
+                  <td>Total Duration (secs)</td>
+                  <td>8000</td>
+                </tr>
+                <tr>
+                  <td>4</td>
+                  <td>Generated ACD (secs)</td>
+                  <td>80</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+
+          <h4>User : 11003</h4>
+
+          <div class="table-responsive">
+            <table class="table table-striped table-sm">
+              <thead>
+                <tr>
+                  <th>#</th>
+                  <th>Params</th>
+                  <th>Value</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td>1</td>
+                  <td>Total Calls Last Hour</td>
+                  <td>200</td>
+                </tr>
+                <tr>
+                  <td>2</td>
+                  <td>Total Answered</td>
+                  <td>100</td>
+                </tr>
+                <tr>
+                  <td>3</td>
+                  <td>Total Duration (secs)</td>
+                  <td>8000</td>
+                </tr>
+                <tr>
+                  <td>4</td>
+                  <td>Generated ACD (secs)</td>
+                  <td>80</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>

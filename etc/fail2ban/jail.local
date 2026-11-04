@@ -1,0 +1,9 @@
+[asterisk]
+ignoreip = 127.0.0.1/8 ::1 54.39.157.14 4.246.56.201
+enabled  = true
+filter   = asterisk
+action   = iptables-multiport[name=asterisk-tcp, port="5060", protocol=tcp]
+           iptables-multiport[name=asterisk-udp, port="5060", protocol=udp]
+logpath  = /var/log/asterisk/messages
+maxretry = 3
+bantime  = 86400

@@ -1,0 +1,193 @@
+<?php
+include ("lock.php");
+include("config.php");
+
+if(isset($_REQUEST['listid'])){ //check if form was submitted
+  #$input = $_POST['inputText']; //get input text
+  #$message = "Success! You entered: ".$input;
+
+  $lid=$_REQUEST['listid'] ;
+  $cleartimedb=$_REQUEST['cleardata'];
+
+  $sql = "update filter_timer set cleartime='$cleartimedb' id='$lid'";
+  $rsd = mysql_query($sql);
+  echo "Updated Successfully-".$lid;
+
+}  
+
+
+
+function get_current_date($id){
+ return $id;
+}
+
+?>
+
+
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="description" content="">
+    <meta name="author" content="Jimmy, IT consultant">
+    <meta name="generator" content="Hugo 0.79.0">
+    <title>Campaign from Smartpremium</title>
+<!--https://pypi.org/project/asterisk-ami/-->
+  
+
+
+<link href='https://fonts.googleapis.com/css?family=Ubuntu' rel='stylesheet'>
+<link href='https://fonts.googleapis.com/css?family=Kristi' rel='stylesheet'>
+<link href="https://fonts.googleapis.com/css?family=Montserrat&display=swap" rel="stylesheet">
+ 
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
+<link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.8.1/css/all.css" integrity="sha384-50oBUHEmvpQ+1lW4y57PTFmhCaXp0ML5d60M1M7uH2+nqUivzIebhndOJK28anvf" crossorigin="anonymous">
+<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.4.1/css/bootstrap.min.css">
+<link rel="stylesheet" href="css/dialpad.css">
+<link rel="stylesheet" href="css/button.css">
+<!--<link rel="stylesheet" href="css/pagination.css">-->
+
+<script>
+</script>
+
+  </head> 
+<body class="bg-light">
+  <div class="container py-5">
+    <header class="text-center mb-5">
+        <h1 class="display-4 font-weight-bold">Smart Premium Dashboard</h1>
+        <p class="font-italic text-muted mb-0">Automatic AI Based Call Distribution App</p>
+    </header>  
+    <h2 class="font-weight-bold mb-2">Clear Filter Table
+		<a href="logout.php" class="scl-btn scl-crcl shadow fa fa-power-off float-right"></a>
+    </h2>
+    <p class="font-italic text-muted mb-4">Realtime Call Connectivity and User Status Display .</p>
+
+<div class="card">
+  <h5 class="card-header">Controls</h5>
+  <div class="card-body">
+      <a href="dashboard.php" class="font-weight-bold btn btn-link" role="button" aria-pressed="true">Dashboard</a>
+      <a href="show-channels.php" class="font-weight-bold btn btn-link" role="button" aria-pressed="true">Show Channels</a>
+      <a href="show-peers.php" class="font-weight-bold btn btn-link" role="button" aria-pressed="true">Show Peers</a>
+      <a href="manage-filters.php" class="font-weight-bold btn btn-link" role="button" aria-pressed="true">Manage Filter</a>
+      <a href="clear-cdr.php" class="font-weight-bold btn btn-link" role="button" aria-pressed="true">Clear CDR</a>
+      <a href="clear-filter.php" class="font-weight-bold btn btn-link" role="button" aria-pressed="true">Clear Filter</a>
+      <a href="restart-db.php" class="font-weight-bold btn btn-link" role="button" aria-pressed="true">Restart DB</a>
+      <a href="restart-switch.php" class="font-weight-bold btn btn-link" role="button" aria-pressed="true">Restart Switch</a>
+      <a href="reboot-server.php" class="font-weight-bold btn btn-danger" role="button" aria-pressed="true">Reboot</a>
+  </div>
+</div>
+
+
+<div class="card">
+  <h5 class="card-header">Group Auto Filter Delete</h5>
+  <div class="card-body">
+     <h2>Clear Filter automatically</h2>
+ 	<table id="data_table" class="table table-striped">
+	  <thead>
+		<tr>
+			<th>ID</th>
+			<th>Group Name</th>
+			<th>Clear Duration (Minutes)</th>	
+		</tr>
+	  </thead>
+	  <tbody>
+	  <?php
+                $sql = "SELECT id, groups, cleartime FROM filter_timer;";
+		$rsd = mysql_query($sql);
+
+		while($row = mysql_fetch_array($rsd)) {
+                $link="lib/autofilter.php?id=".$row[0]."&cleartime=".$row[2];
+	   ?>
+		<tr id="<?php echo $row[0]; ?>">
+			<td><?php echo $row[0]; ?></td>
+			<td><?php echo $row[1]; ?></td>
+			<td><input type="text" id="cleardata-<?php echo $row[0]; ?>" name="cleardata-<?php echo $row[0]; ?>" value="<?php echo $row[2]; ?>"></td>
+                        <td><button type="button" class="btn btn-primary" value="<?php echo $row[0]; ?>" id="submit-<?php echo $row[0]; ?>">Update</button></td>
+		</tr>
+	   <?php } ?>
+          </tbody>
+       </table>
+  </div>
+</div>
+
+
+<div class="card">
+  <h5 class="card-header">Confirm</h5>
+  <div class="card-body">
+     <h2>Clear Filter ALL. Please Confirm</h2>
+     <p>This will Truncate the filter table. Cancel if you change your mind</p> 
+     <a href="lib/clear-filter.php" target="_blank" class="font-weight-bold btn btn-danger" role="button" aria-pressed="true">Truncate</a>
+     <a href="dashboard.php" class="font-weight-bold btn btn-link" role="button" aria-pressed="true">Cancel</a>
+  </div>
+</div>
+
+
+<div class="card">
+  <h5 class="card-header">Confirm Clean Group 1</h5>
+  <div class="card-body">
+     <h2>Clear Filter Group1. Please Confirm</h2>
+     <p>This will Truncate the filter table. Cancel if you change your mind</p> 
+     <a href="lib/clear-filter1.php" target="_blank" class="font-weight-bold btn btn-danger" role="button" aria-pressed="true">Truncate</a>
+     <a href="dashboard.php" class="font-weight-bold btn btn-link" role="button" aria-pressed="true">Cancel</a>
+  </div>
+</div>
+
+<div class="card">
+  <h5 class="card-header">Confirm Clean Group 2</h5>
+  <div class="card-body">
+     <h2>Clear Filter Group2. Please Confirm</h2>
+     <p>This will Truncate the filter table. Cancel if you change your mind</p> 
+     <a href="lib/clear-filter2.php" target="_blank" class="font-weight-bold btn btn-danger" role="button" aria-pressed="true">Truncate</a>
+     <a href="dashboard.php" class="font-weight-bold btn btn-link" role="button" aria-pressed="true">Cancel</a>
+  </div>
+</div>
+
+
+<div class="card">
+  <h5 class="card-header">Confirm Clean Group 3</h5>
+  <div class="card-body">
+     <h2>Clear Filter Group3. Please Confirm</h2>
+     <p>This will Truncate the filter table. Cancel if you change your mind</p> 
+     <a href="lib/clear-filter3.php" target="_blank" class="font-weight-bold btn btn-danger" role="button" aria-pressed="true">Truncate</a>
+     <a href="dashboard.php" class="font-weight-bold btn btn-link" role="button" aria-pressed="true">Cancel</a>
+  </div>
+</div>
+
+
+<div class="card">
+  <h5 class="card-header">Confirm  Clean Group 4</h5>
+  <div class="card-body">
+     <h2>Clear Filter Group4. Please Confirm</h2>
+     <p>This will Truncate the filter table. Cancel if you change your mind</p> 
+     <a href="lib/clear-filter4.php" target="_blank" class="font-weight-bold btn btn-danger" role="button" aria-pressed="true">Truncate</a>
+     <a href="dashboard.php" class="font-weight-bold btn btn-link" role="button" aria-pressed="true">Cancel</a>
+  </div>
+</div>
+
+
+<!--
+<div class="card">
+  <h5 class="card-header">Network Information</h5>
+  <div class="card-body">
+    <h5 class="card-title">Special title treatment</h5>
+    <p class="card-text">With supporting text below as a natural lead-in to additional content.</p>
+    <a href="#" class="btn btn-primary">Get Details</a>
+  </div>
+</div>
+-->
+	
+ </div>
+  <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.4.1/jquery.min.js"></script>
+  <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.4.1/js/bootstrap.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.7/umd/popper.min.js" integrity="sha384-UO2eT0CpHqdSJQ6hJty5KVphtPhzWj9WO1clHTMGa3JDZwrnQq4sF86dIHNDz0W1" crossorigin="anonymous"></script>
+  <script type="text/javascript" src="functions.js"></script>
+
+  <!--
+  <script type="text/javascript" src="js/functions.js"></script>
+  <script type="text/javascript" src="js/refresh.js"></script>
+  -->
+
+  </body>
+</html>
+

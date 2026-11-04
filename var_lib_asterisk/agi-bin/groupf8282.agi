@@ -1,0 +1,115 @@
+#!/usr/bin/perl
+use Asterisk::AGI;
+use DBI;
+# Config options
+%MYSQL = (
+hostname	=>	"localhost", 
+username	=>	"root",
+password	=>	"",
+database	=>	"yahoo"
+);
+
+$dbhA = DBI->connect("DBI:mysql:$MYSQL{database}:$MYSQL{hostname}","$MYSQL{username}","$MYSQL{password}")
+	|| die("Couldn't connect to database!\n"); 
+
+$AGI = new Asterisk::AGI;
+my %input = $AGI->ReadParse();
+my $pin 	= 0;
+my $target	= 0;
+my $try	= 0;
+
+##################################################################################
+#DATE FORMAT DEFINE
+($sec,$min,$hour,$mday,$mon,$year,$wday,$yday,$isdst) = localtime(time);
+$year = ($year + 1900);
+$mon++;
+if ($mon < 10) {$mon = "0$mon";}
+if ($mday < 10) {$mday = "0$mday";}
+if ($hour < 10) {$Fhour = "0$hour";}
+if ($min < 10) {$min = "0$min";}
+if ($sec < 10) {$sec = "0$sec";}
+$datetime = "$year-$mon-$mday $hour:$min:$sec";
+$datetime2 ="$year-$mon-$mday";
+$datetime3 = "$hour:$min:$sec";
+$now_epoch = time();
+################################################################################## 
+#DETECT THE CALLERID
+
+
+
+#$extension2=$AGI->get_variable("number1");
+my $uid=$AGI->get_variable("UNIQUEID");
+my $extension=$AGI->get_variable("EXTEN");
+my $cid=$AGI->get_variable("CALLERID(num)");
+my $groupname="group1";
+my $dbgrpname="Group1";
+my $duration=60;
+my $filter=0;
+#my $prefix=$AGI->get_variable("jimmy");
+
+#$AGI->say_number('$prefix');
+#$AGI->exec('Playback','demo-congrats');
+##################################################################################
+#LOG EVERY INCOMMING CALLS
+
+if ($filter==0){
+                       actionc($groupname,$filter,$duration);
+                     } 
+                 else {
+                       actiona($groupname,$filter,$duration);
+                      } 
+sub actiona(){
+               my ($x,$y,$z) = @_;
+               my $query	= "select count(*) from topgear where mydate > DATE_SUB('$datetime', INTERVAL $z MINUTE) and number='$extension' or ani='$cid';";
+               #my $query        = "select count(*) from topgear where mydate > DATE_SUB('$datetime', INTERVAL $z MINUTE) and number='$extension' or ani='$cid';";
+               #my $query        = "select count(*) from topgear where mydate > DATE_SUB('$datetime', INTERVAL $z MINUTE) and number='$extension';";
+
+               my $sth		= $dbhA->prepare($query);
+               $sth->execute 
+		                          || die("Couldn't exec sth2!");   
+               my $interval = $sth->fetchrow();
+               
+               if ($interval > $pin){
+                       actiond($x,$y,$z);
+                       } 
+                 else {
+                       actionb($x,$y,$z);
+                      }
+ 
+             }
+
+sub actionb(){
+               my ($x,$y,$z) = @_;
+               my $query	= "insert into topgear values('','1','$now_epoch','$datetime','$cid','$extension','','Y','group1');";
+               my $sthA		= $dbhA->prepare($query);
+               $sthA->execute || die("Couldn't exec sthA!");
+               $sthA->finish();
+               #$AGI->exec('Playback','$audioname');
+               #$AGI->exec('Playback','demo-congrats');
+
+               actionc($x,$y,$z);
+             }
+
+sub actionc(){
+              # my ($x,$y,$z) = @_;
+              # my $query	= "select audioname from audio where username='4142';";
+              # my $sth		= $dbhA->prepare($query);
+              # $sth->execute 
+		#                           || die("Couldn't exec sth2!");   
+               #my $song = $sth->fetchrow();
+               #$AGI->exec('Playback','$song');
+               #$AGI->say_alpha($prefix, $name);
+               
+               $AGI->set_priority(7);
+
+             }
+
+sub actiond(){
+               $AGI->set_priority(29);
+             }
+
+#####################################################################################
+
+return 1;
+
+

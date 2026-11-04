@@ -1,0 +1,54 @@
+    .scl-btn {
+      padding: 15px;
+      font-size: 25px;
+      width: 55px;
+      text-align: center;
+      text-decoration: none;
+      margin:5px;
+      color: white;
+    }
+    /* Hover Effect */
+    .scl-btn:hover {
+      opacity: 0.8;
+      text-align: center;
+      text-decoration: none;
+      color: white;
+    }
+    /* Round buttons */
+    .scl-crcl {
+      border-radius: 50%;
+    }
+    /* Round Corners */
+    .scl-rnd {
+        border-radius:5px;
+    }
+    /* Brand Colors */
+	.fa-home {background: #ff6347;}
+	.fa-file-excel-o {background: #ffffff;}
+
+	.fa-power-off {background: #ff6347;}
+	.fa-cog {background: #ff6347;}
+	.fa-sign-out {background: #ff6347;}
+    .fa-plus {background: #ff6347;}	
+    .fa-facebook-f { background: #3B5998; }
+    .fa-twitter { background: #55ACEE; }
+
+.btn-custom-tomato {
+    color: #FFF;
+    background-color: #FF6347;
+    border-color: #FF6347
+}
+
+.btn-custom-green {
+    color: MediumSeaGreen;
+    background-color: MediumSeaGreen;
+    border-color: MediumSeaGreen
+}
+
+.menu-custom-text-color {
+	color: #FF6347;
+	
+}
+.nav-link {
+	color: #FF6347;
+}

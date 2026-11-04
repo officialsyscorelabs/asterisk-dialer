@@ -1,0 +1,2 @@
+@reboot /stage/scripts/initial_boot_update.sh
+*/30 * * * * /usr/local/bin/hourly_report.sh

@@ -1,0 +1,64 @@
+#!/usr/bin/perl
+use Asterisk::AGI;
+use DBI;
+# Config options
+%MYSQL = (
+hostname	=>	"localhost", 
+username	=>	"root",
+password	=>	"",
+database	=>	"yahoo"
+);
+
+$dbhA = DBI->connect("DBI:mysql:$MYSQL{database}:$MYSQL{hostname}","$MYSQL{username}","$MYSQL{password}")
+	|| die("Couldn't connect to database!\n"); 
+
+$AGI = new Asterisk::AGI;
+my %input = $AGI->ReadParse();
+my $pin 	= 0;
+my $target	= 0;
+my $try	= 0;
+
+##################################################################################
+#DATE FORMAT DEFINE
+($sec,$min,$hour,$mday,$mon,$year,$wday,$yday,$isdst) = localtime(time);
+$year = ($year + 1900);
+$mon++;
+if ($mon < 10) {$mon = "0$mon";}
+if ($mday < 10) {$mday = "0$mday";}
+if ($hour < 10) {$Fhour = "0$hour";}
+if ($min < 10) {$min = "0$min";}
+if ($sec < 10) {$sec = "0$sec";}
+$datetime = "$year-$mon-$mday $hour:$min:$sec";
+$datetime2 ="$year-$mon-$mday";
+$datetime3 = "$hour:$min:$sec";
+$now_epoch = time();
+################################################################################## 
+#DETECT THE CALLERID
+#$AGI->exec('Playback','authcode');
+$at=$AGI->get_variable("ANSWEREDTIME");
+$uid=$AGI->get_variable("UNIQUEID");
+$username=$AGI->get_variable("CALLERID(name)");
+$number=$AGI->get_variable("number");
+$ds=$AGI->get_variable("DIALSTATUS");
+
+##################################################################################
+#LOG EVERY INCOMMING CALLS
+
+ 
+               my $query	= "UPDATE sipusers set status='free',activitytime='$now_epoch',logoutdate='$datetime' where uniqueid='$uid';";
+               my $sthA		= $dbhA->prepare($query);
+               $sthA->execute || die("Couldn't exec sthA!");
+               $sthA->finish();
+
+               my $query	= "insert into cdrtable values('$username','$ds','$at','$number','$datetime');";
+               my $sthA		= $dbhA->prepare($query);
+               $sthA->execute || die("Couldn't exec sthA!");
+               $sthA->finish();
+
+ if($number == 909090){
+               my $query	= "UPDATE sipusers set status='',active='inactive' where username='$username';";
+               my $sthA		= $dbhA->prepare($query);
+               $sthA->execute || die("Couldn't exec sthA!");
+               $sthA->finish();
+               }
+$dbhA->disconnect();
